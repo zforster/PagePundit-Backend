@@ -42,6 +42,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+.aws-sam
 
 ### PyCharm ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
@@ -64,6 +65,7 @@ Temporary Items
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
+.idea
 
 # CMake
 cmake-build-debug/
