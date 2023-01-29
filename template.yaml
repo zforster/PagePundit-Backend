@@ -42,6 +42,22 @@ Resources:
             Path: /recommendations_from_book
             Method: get
       Role: !GetAtt ReadAPIKeys.Arn
+  GetCategories:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 30
+      CodeUri: src/
+      Description: Get book categories
+      Handler: lambdas.categories.app.get_categories
+      Runtime: python3.9
+      Events:
+        GetRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /categories
+            Method: get
+      Role: !GetAtt ReadAPIKeys.Arn
   # ROLES
   ReadAPIKeys:
     Type: AWS::IAM::Role
