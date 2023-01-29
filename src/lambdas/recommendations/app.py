@@ -1,4 +1,3 @@
-import json
 from typing import Dict, Optional
 
 import lambdas.recommendations.service as service_layer
