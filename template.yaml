@@ -16,14 +16,30 @@ Resources:
       Timeout: 30
       CodeUri: src/
       Description: Get recommendations from categories of interest
-      Handler: lambdas.recommendations.app
+      Handler: lambdas.recommendations.app.get_category_recommendations
       Runtime: python3.9
       Events:
-        PostModel:
+        GetRecommendations:
           Type: Api
           Properties:
             RestApiId: !Ref MyNextBookAPI
             Path: /category_recommendations
+            Method: get
+      Role: !GetAtt ReadAPIKeys.Arn
+  GetRecommendationsFromBook:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 30
+      CodeUri: src/
+      Description: Get recommendations from categories of interest
+      Handler: lambdas.recommendations.app.get_recommendations_from_book
+      Runtime: python3.9
+      Events:
+        GetRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /recommendations_from_book
             Method: get
       Role: !GetAtt ReadAPIKeys.Arn
   # ROLES

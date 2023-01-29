@@ -9,8 +9,8 @@ class SnakeToCamelCaseModel(BaseModel):
         alias_generator = camelize
         allow_population_by_field_name = True
 
-    def to_json_by_alias(self) -> str:
-        return self.json(by_alias=True)
+    def to_dict_by_alias(self) -> dict:
+        return self.dict(by_alias=True)
 
 
 class Book(SnakeToCamelCaseModel):

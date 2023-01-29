@@ -25,14 +25,14 @@ def get_category_recommendations(
     if not google_books_wrapper:
         google_books_wrapper = GoogleBooksWrapper(api_key=get_google_books_api_key())
 
-    event_body = json.loads(event["body"])
+    query_params = event.get("queryStringParameters", {})
 
     return {
         "statusCode": 200,
         "body": service_layer.get_category_recommendations(
             open_ai_wrapper=open_ai_wrapper,
             google_books_wrapper=google_books_wrapper,
-            categories=event_body.get("categories"),
+            categories=query_params["categories"].split(","),
         ),
     }
 
@@ -49,14 +49,14 @@ def get_recommendations_from_book(
     if not google_books_wrapper:
         google_books_wrapper = GoogleBooksWrapper(api_key=get_google_books_api_key())
 
-    event_body = json.loads(event["body"])
+    query_params = event.get("queryStringParameters", {})
 
     return {
         "statusCode": 200,
         "body": service_layer.get_recommendations_from_book(
             open_ai_wrapper=open_ai_wrapper,
             google_books_wrapper=google_books_wrapper,
-            book_name=event_body["name"],
-            authors=event_body["authors"],
+            book_name=query_params["name"],
+            authors=query_params["authors"].split(","),
         ),
     }
