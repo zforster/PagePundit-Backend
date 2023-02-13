@@ -9,6 +9,18 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+  # BUCKETS
+  CategoryBucket:
+    Type: AWS::S3::Bucket
+    Description: Bucket to store user category preferences
+    Properties:
+      BucketName: user-category-bucket
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
   # LAMBDA
   GetCategoryRecommendations:
     Type: AWS::Serverless::Function
