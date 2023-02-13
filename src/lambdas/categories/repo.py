@@ -17,7 +17,7 @@ class S3CategoryRepo(BaseCategoryRepo):
         self,
     ):
         self.s3 = S3()
-        self.bucket = environ.get("ModelBucket")
+        self.bucket = environ.get("CategoryBucket")
 
     def store_categories(self, categories: list[Category], user_id: str) -> None:
         file_name = f"{user_id}.json"

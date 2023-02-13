@@ -70,6 +70,25 @@ Resources:
             Path: /categories
             Method: get
       Role: !GetAtt ReadAPIKeys.Arn
+  PostCategories:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 30
+      CodeUri: src/
+      Description: Store user category preferences
+      Handler: lambdas.categories.app.post_categories
+      Runtime: python3.9
+      Environment:
+        Variables:
+          CategoryBucket: !Ref CategoryBucket
+      Events:
+        PostModel:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /categories
+            Method: post
+      Role: !GetAtt S3Access.Arn
   # ROLES
   ReadAPIKeys:
     Type: AWS::IAM::Role
@@ -100,3 +119,29 @@ Resources:
                   - ssm:GetParameter
                 Effect: Allow
                 Resource: arn:aws:ssm:eu-west-1:438998290379:parameter/google_books_key
+  S3Access:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaPolicies
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:SelectObjectContent
+                Effect: Allow
+                Resource:
+                  - !Sub ${CategoryBucket.Arn}
+                  - !Sub ${CategoryBucket.Arn}/*
