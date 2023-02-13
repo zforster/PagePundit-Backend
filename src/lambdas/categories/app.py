@@ -1,4 +1,4 @@
-from repo import BaseCategoryRepo, S3CategoryRepo
+from lambdas.categories.repo import BaseCategoryRepo, S3CategoryRepo
 
 import lambdas.categories.service as service_layer
 
