@@ -8,21 +8,12 @@ from botocore.exceptions import ClientError
 class S3:
     def __init__(
         self,
-        region_name: Optional[str] = None,
-        aws_access_key_id: Optional[str] = None,
-        aws_secret_access_key: Optional[str] = None,
     ):
         self.s3_resource = boto3.resource(
             "s3",
-            region_name=region_name,
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
         )
         self.s3_client = boto3.client(
             "s3",
-            region_name=region_name,
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
         )
 
     def file_exists(self, bucket_name: str, file_name: str) -> bool:

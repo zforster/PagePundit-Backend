@@ -18,9 +18,9 @@ def post_categories(
 ) -> dict:
     if category_repo is None:
         category_repo = S3CategoryRepo()
-    service_layer.store_categories(category_repo=category_repo,
-                                   categories=event["body"],
-                                   user_id='zak')
+    service_layer.store_categories(
+        category_repo=category_repo, categories=event["body"], user_id="zak"
+    )
     return {
         "statusCode": 201,
     }
