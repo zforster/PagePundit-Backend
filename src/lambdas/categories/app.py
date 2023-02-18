@@ -1,7 +1,8 @@
-from typing import Optional
-from lambdas.categories.repo import S3CategoryRepo, BaseCategoryRepo
 import json
+from typing import Optional
+
 import lambdas.categories.service as service_layer
+from lambdas.categories.repo import BaseCategoryRepo, S3CategoryRepo
 
 
 def get_categories(

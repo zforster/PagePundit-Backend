@@ -2,9 +2,8 @@ import json
 from abc import ABC
 from os import environ
 
-from lambdas.categories.category import Category
-
 from common.clients.s3 import S3
+from lambdas.categories.category import Category
 
 
 class BaseCategoryRepo(ABC):
