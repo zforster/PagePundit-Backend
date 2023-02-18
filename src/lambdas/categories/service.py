@@ -1,8 +1,8 @@
 import json
 
-from models.category import Category
-from repo import BaseCategoryRepo
-from utils import book_categories
+from lambdas.categories.category import Category
+from lambdas.categories.repo import BaseCategoryRepo
+from lambdas.categories.utils import book_categories
 
 
 def get_categories() -> str:

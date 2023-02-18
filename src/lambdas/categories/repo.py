@@ -2,7 +2,7 @@ import json
 from abc import ABC
 from os import environ
 
-from models.category import Category
+from lambdas.categories.category import Category
 
 from common.clients.s3 import S3
 
