@@ -1,5 +1,4 @@
-import json
-from typing import Dict, Optional
+from typing import Optional
 
 import lambdas.recommendations.service as service_layer
 from common.clients.parameter_store import get_google_books_api_key
@@ -14,11 +13,15 @@ from lambdas.recommendations.wrappers.open_ai_wrapper import (
 
 
 def get_category_recommendations(
-    event: Dict,
-    context: Dict,
+    event: dict,
+    context: dict,
     open_ai_wrapper: Optional[AbstractOpenAIWrapper] = None,
     google_books_wrapper: Optional[AbstractGoogleBooksWrapper] = None,
-) -> Dict:
+) -> dict:
+    """
+    Gets book recommendations based on user category preferences
+    Pulls book title from open AI, then fetches more detailed information using google books api
+    """
     if not open_ai_wrapper:
         open_ai_wrapper = MockOpenAIWrapper()
 
@@ -38,11 +41,14 @@ def get_category_recommendations(
 
 
 def get_recommendations_from_book(
-    event: Dict,
-    context: Dict,
+    event: dict,
+    context: dict,
     open_ai_wrapper: Optional[AbstractOpenAIWrapper] = None,
     google_books_wrapper: Optional[GoogleBooksWrapper] = None,
-) -> Dict:
+) -> dict:
+    """
+    Returns similar books to that being viewed by a particular user
+    """
     if not open_ai_wrapper:
         open_ai_wrapper = MockOpenAIWrapper()
 
