@@ -17,7 +17,7 @@ def store_categories(
     )
 
 
-def get_user_selected_categories(
-    category_repo: BaseCategoryRepo, user_id: str
-) -> list[dict]:
-    return [c.to_dict_by_alias() for c in category_repo.get_categories(user_id=user_id)]
+def get_user_selected_categories(category_repo: BaseCategoryRepo, user_id: str) -> str:
+    return json.dumps(
+        [c.to_dict_by_alias() for c in category_repo.get_categories(user_id=user_id)]
+    )
