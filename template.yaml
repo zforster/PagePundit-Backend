@@ -38,6 +38,22 @@ Resources:
             Path: /category_recommendations
             Method: get
       Role: !GetAtt LambdaRole.Arn
+  GetUserSelectedCategories:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 30
+      CodeUri: src/
+      Description: Get user chosen category preferences
+      Handler: lambdas.recommendations.app.get_user_selected_categories
+      Runtime: python3.9
+      Events:
+        GetRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /user_selected_categories
+            Method: get
+      Role: !GetAtt LambdaRole.Arn
   GetRecommendationsFromBook:
     Type: AWS::Serverless::Function
     Properties:

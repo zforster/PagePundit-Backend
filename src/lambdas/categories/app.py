@@ -32,3 +32,19 @@ def post_categories(
     return {
         "statusCode": 201,
     }
+
+
+def get_user_selected_categories(
+    event: dict, context: dict, category_repo: Optional[BaseCategoryRepo] = None
+) -> dict:
+    """
+    Retrieve the user's selected preferences
+    """
+    if category_repo is None:
+        category_repo = S3CategoryRepo()
+    return {
+        "statusCode": 200,
+        "body": service_layer.get_user_selected_categories(
+            category_repo=category_repo, user_id="zak"
+        ),
+    }
