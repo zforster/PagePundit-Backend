@@ -98,6 +98,9 @@ Resources:
       Description: Get user chosen category preferences
       Handler: lambdas.categories.app.get_user_selected_categories
       Runtime: python3.9
+      Environment:
+        Variables:
+          CategoryBucket: !Ref CategoryBucket
       Events:
         GetRecommendations:
           Type: Api
