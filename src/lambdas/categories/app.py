@@ -17,7 +17,6 @@ def get_categories(
         "body": service_layer.get_categories(),
     }
 
-
 def post_categories(
     event: dict, context: dict, category_repo: Optional[BaseCategoryRepo] = None
 ) -> dict:
