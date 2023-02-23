@@ -28,13 +28,11 @@ class MockOpenAIWrapper(AbstractOpenAIWrapper):
         max_tokens: Optional[int] = 1000,
     ) -> str:
         return """
-            [
-              { "t": "The Dichotomy of Leadership", "a": "Jocko Willink and Leif Babin" },
-              { "t": "The Hard Thing About Hard Things", "a": "Ben Horowitz" },
-              { "t": "The Art of War", "a": "Sun Tzu" },
-              { "t": "Start With Why", "a": "Simon Sinek" },
-              { "t": "Leaders Eat Last", "a": "Simon Sinek" }
-            ]
+        [{"t": "Alcohol: How to Give It Up and Be Happy", "a": "Linda R. Watson, M.D."}, 
+        {"t": "The Alcohol Experiment: A 30-Day, Alcohol-Free Challenge to Interrupt Your Habits and Help You Take Control", "a": "Ariane Resnick"}, 
+        {"t": "How To Stop Drinking Alcohol: A Simple Path From Alcohol Misuse to Alcohol Recovery", "a": "John M. Green"}, 
+        {"t": "The Easy Way to Stop Drinking: Join the Millions Who Have Discovered How to Quit and Stay Quit", "a": "Allen Carr"}, 
+        {"t": "The Alcoholic Family in Recovery: A Developmental Approach", "a": "Stephanie Brown"}]
         """
 
 
