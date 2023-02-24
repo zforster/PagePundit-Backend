@@ -46,7 +46,7 @@ class GoogleBooksWrapper:
             categories=volume_info.get("categories", []),
             average_rating=volume_info.get("averageRating"),
             total_ratings=volume_info.get("ratingsCount"),
-            thumbnail_url=volume_info.get("imageLinks", {"thumbnail": None}).get(
-                "thumbnail"
-            ),
+            thumbnail_url=volume_info.get("imageLinks", {"thumbnail": None})
+            .get("thumbnail")
+            .replace("&edge=curl", ""),
         )

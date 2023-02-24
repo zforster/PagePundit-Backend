@@ -28,11 +28,13 @@ class MockOpenAIWrapper(AbstractOpenAIWrapper):
         max_tokens: Optional[int] = 1000,
     ) -> str:
         return """
-        [{"t": "Alcohol: How to Give It Up and Be Happy", "a": "Linda R. Watson, M.D."}, 
-        {"t": "The Alcohol Experiment: A 30-Day, Alcohol-Free Challenge to Interrupt Your Habits and Help You Take Control", "a": "Ariane Resnick"}, 
-        {"t": "How To Stop Drinking Alcohol: A Simple Path From Alcohol Misuse to Alcohol Recovery", "a": "John M. Green"}, 
-        {"t": "The Easy Way to Stop Drinking: Join the Millions Who Have Discovered How to Quit and Stay Quit", "a": "Allen Carr"}, 
-        {"t": "The Alcoholic Family in Recovery: A Developmental Approach", "a": "Stephanie Brown"}]
+        [ 
+            {"t": "Steve Jobs",  "a": "Walter Isaacson"},
+            {"t": "The Innovators: How a Group of Hackers, Geniuses, and Geeks Created the Digital Revolution",  "a": "Walter Isaacson"},
+            {"t": "The Microsoft Way: The Real Story of How the Company Outsmarts Its Competition",  "a": "Randall Stross"},
+            {"t": "The Google Story",  "a": "David A. Vise and Mark Malseed"},
+            {"t": "Competing on Internet Time: Lessons from Netscape and Its Battle with Microsoft",  "a": "Michael A. Cusumano and David B. Yoffie"}
+        ]
         """
 
 
