@@ -1,11 +1,7 @@
 import json
 
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
-from lambdas.recommendations.wrappers.open_ai_wrapper import (
-    AbstractOpenAIWrapper,
-    MockOpenAIWrapper,
-    OpenAIWrapper,
-)
+from lambdas.recommendations.wrappers.open_ai_wrapper import AbstractOpenAIWrapper
 
 
 def get_recommendations_from_text(
