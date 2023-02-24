@@ -17,3 +17,4 @@ class Book(SnakeToCamelCaseModel):
     average_rating: Optional[float] = None
     total_ratings: Optional[int] = None
     thumbnail_url: Optional[str] = None
+    amazon_url: str

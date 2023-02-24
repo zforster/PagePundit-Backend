@@ -10,6 +10,12 @@ class GoogleBooksWrapper:
         self.API_KEY = api_key
         self.BASE_URL = "https://www.googleapis.com/books/v1/"
 
+    @staticmethod
+    def get_thumbnail(images: dict) -> Optional[str]:
+        if images == {}:
+            return None
+        return images.get('thumbnail').replace("&edge=curl", "")
+
     def request_book(
         self,
         title: str,
@@ -25,6 +31,7 @@ class GoogleBooksWrapper:
             return None
 
         response_item = response_items[0]
+
         volume_info = response_item["volumeInfo"]
         identifiers = volume_info["industryIdentifiers"]
         isbn_10 = [
@@ -33,6 +40,7 @@ class GoogleBooksWrapper:
         isbn_13 = [
             value["identifier"] for value in identifiers if value["type"] == "ISBN_13"
         ]
+
         return Book(
             title=volume_info.get("title"),
             subtitle=volume_info.get("subtitle"),
@@ -46,7 +54,6 @@ class GoogleBooksWrapper:
             categories=volume_info.get("categories", []),
             average_rating=volume_info.get("averageRating"),
             total_ratings=volume_info.get("ratingsCount"),
-            thumbnail_url=volume_info.get("imageLinks", {"thumbnail": None})
-            .get("thumbnail")
-            .replace("&edge=curl", ""),
+            thumbnail_url=self.get_thumbnail(images=volume_info.get("imageLinks", {})),
+            amazon_url='test'
         )
