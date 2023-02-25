@@ -17,8 +17,12 @@ class GoogleBooksWrapper:
         return images.get('thumbnail').replace("&edge=curl", "")
 
     @staticmethod
-    def get_amazon_url(title: str) -> str:
-        return f'https://www.amazon.co.uk/s?k={title}&i=stripbooks'
+    def get_amazon_url(title: str, authors: list) -> str:
+        base = "https://www.amazon.co.uk/s?k="
+        affiliate = "&tag=zak-affiliate-link"
+        if len(authors) > 0:
+            return f'{base}{title}+{",".join([author for author in authors])}&i=stripbooks{affiliate}'
+        return f'{base}{title}&i=stripbooks{affiliate}'
 
     def request_book(
         self,
@@ -50,5 +54,5 @@ class GoogleBooksWrapper:
             average_rating=volume_info.get("averageRating"),
             total_ratings=volume_info.get("ratingsCount"),
             thumbnail_url=self.get_thumbnail(images=volume_info.get("imageLinks", {})),
-            amazon_search_url=self.get_amazon_url(title=volume_info["title"]),
+            amazon_search_url=self.get_amazon_url(title=volume_info["title"], authors=volume_info.get("authors", [])),
         )
