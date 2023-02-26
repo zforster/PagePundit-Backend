@@ -26,6 +26,11 @@ def get_recommendations_from_text(
 
     return {
         "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Methods": "GET"
+        },
         "body": service_layer.get_recommendations_from_text(
             open_ai_wrapper=open_ai_wrapper,
             google_books_wrapper=google_books_wrapper,

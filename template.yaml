@@ -9,14 +9,10 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      CorsConfiguration:
-        AllowHeaders:
-          - "*"
-        AllowMethods:
-          - OPTIONS
-          - POST
-          - GET
-        AllowOrigin: "http://localhost:3000"
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'content-type'"
+        AllowOrigin: "'http://localhost:3000'"
   # LAMBDA - RECOMMENDATIONS
   GetRecommendationsFromInput:
     Type: AWS::Serverless::Function
