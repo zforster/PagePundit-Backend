@@ -21,6 +21,5 @@ def get_recommendations_from_text(
     for book in open_ai_response_as_dict:
         book_data = google_books_wrapper.request_book(title=book["t"], author=book["a"])
         if book_data is not None:
-            print(book_data.amazon_search_url)
             recommendations.append(book_data)
     return json.dumps([book.to_dict_by_alias() for book in recommendations])

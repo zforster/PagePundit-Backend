@@ -21,7 +21,7 @@ class GoogleBooksWrapper:
         base = "https://www.amazon.co.uk/s?k="
         affiliate = "&tag=zak-affiliate-link"
         if len(authors) > 0:
-            return f'{base}{title}+{",".join([author for author in authors])}&i=stripbooks{affiliate}'
+            return f'{base}{title}+{", ".join([author for author in authors])}&i=stripbooks{affiliate}'
         return f'{base}{title}&i=stripbooks{affiliate}'
 
     def request_book(
@@ -32,6 +32,7 @@ class GoogleBooksWrapper:
         response = requests.get(
             url=f"{self.BASE_URL}volumes?q=intitle:{title}+inauthor:{author}&key={self.API_KEY}"
         )
+        print(f"{self.BASE_URL}volumes?q=intitle:{title}+inauthor:{author}&key={self.API_KEY}")
         response_json = response.json()
         response_items = response_json.get("items")
 
