@@ -19,7 +19,7 @@ def get_recommendations_from_text(
     Recommend books based on text input
     """
     if not open_ai_wrapper:
-        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+        open_ai_wrapper = MockOpenAIWrapper()
 
     if not google_books_wrapper:
         google_books_wrapper = GoogleBooksWrapper(api_key=get_google_books_api_key())
