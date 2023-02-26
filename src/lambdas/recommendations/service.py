@@ -11,9 +11,10 @@ def get_recommendations_from_text(
 ) -> str:
     open_ai_response = open_ai_wrapper.query(
         prompt=f"""
-        Recommend 5 books maximum that meet this criteria '{user_input}'. 
-        Respond in JSON with the keys title as t, author as a. 
-        For example [{{ "t": title",  "a": "author"}}]."""
+        You are a book recommendation engine.
+        Recommend 10 books maximum meeting this criteria '{user_input}'. 
+        Respond in JSON with keys title t, author a. 
+        E.g. [{{ "t": title",  "a": "author"}}]."""
     )
     open_ai_response_as_dict = json.loads(open_ai_response)
 

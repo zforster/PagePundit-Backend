@@ -32,7 +32,6 @@ class GoogleBooksWrapper:
         response = requests.get(
             url=f"{self.BASE_URL}volumes?q=intitle:{title}+inauthor:{author}&key={self.API_KEY}"
         )
-        print(f"{self.BASE_URL}volumes?q=intitle:{title}+inauthor:{author}&key={self.API_KEY}")
         response_json = response.json()
         response_items = response_json.get("items")
 
