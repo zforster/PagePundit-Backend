@@ -6,7 +6,7 @@ import openai
 
 
 class Models(str, Enum):
-    DAVINCI = "text-davinci-003"
+    GPT = "gpt-3.5-turbo"
 
 
 class AbstractOpenAIWrapper(ABC):
@@ -39,7 +39,7 @@ class MockOpenAIWrapper(AbstractOpenAIWrapper):
 
 
 class OpenAIWrapper(AbstractOpenAIWrapper):
-    def __init__(self, api_key: str, engine: Optional[Models] = Models.DAVINCI.value):
+    def __init__(self, api_key: str, engine: Optional[Models] = Models.GPT.value):
         openai.api_key = api_key
         self.ENGINE = engine
 
