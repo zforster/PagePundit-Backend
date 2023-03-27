@@ -6,13 +6,14 @@ import openai
 
 
 class Models(str, Enum):
-    GPT = "gpt-3.5-turbo"
+    GTP_TURBO = "gpt-3.5-turbo"
 
 
 class AbstractOpenAIWrapper(ABC):
     @abstractmethod
     def query(
         self,
+        system: str,
         prompt: str,
         temperature: Optional[float] = 0.7,
         max_tokens: Optional[int] = 1000,
@@ -23,6 +24,7 @@ class AbstractOpenAIWrapper(ABC):
 class MockOpenAIWrapper(AbstractOpenAIWrapper):
     def query(
         self,
+        system: str,
         prompt: str,
         temperature: Optional[float] = 0.7,
         max_tokens: Optional[int] = 1000,
@@ -39,21 +41,22 @@ class MockOpenAIWrapper(AbstractOpenAIWrapper):
 
 
 class OpenAIWrapper(AbstractOpenAIWrapper):
-    def __init__(self, api_key: str, engine: Optional[Models] = Models.GPT.value):
+    def __init__(self, api_key: str, engine: Optional[Models] = Models.GTP_TURBO.value):
         openai.api_key = api_key
         self.ENGINE = engine
 
     def query(
         self,
+        system: str,
         prompt: str,
         temperature: Optional[float] = 0.7,
         max_tokens: Optional[int] = 1000,
     ) -> str:
-        completion = openai.Completion.create(
-            engine=self.ENGINE,
-            prompt=prompt,
-            max_tokens=max_tokens,
-            n=1,
+        return openai.ChatCompletion.create(
+            model=self.ENGINE,
             temperature=temperature,
-        )
-        return completion.choices[0].text
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ]
+        ).choices[0]["message"]["content"]

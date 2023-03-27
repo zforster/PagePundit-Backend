@@ -1,7 +1,7 @@
 import json
 
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
-from lambdas.recommendations.wrappers.open_ai_wrapper import AbstractOpenAIWrapper
+from lambdas.recommendations.wrappers.open_ai_wrapper import AbstractOpenAIWrapper, OpenAIWrapper
 
 
 def get_recommendations_from_text(
@@ -10,17 +10,18 @@ def get_recommendations_from_text(
     user_input: str,
 ) -> str:
     open_ai_response = open_ai_wrapper.query(
-        prompt=f"""
+        system=f"""
         You are a book recommendation engine.
-        Recommend 10 books maximum meeting this criteria '{user_input}'. 
-        Respond in JSON with keys title t, author a. 
-        E.g. [{{ "t": title",  "a": "author"}}]."""
+        Respond only in JSON with keys title t, author a. 
+        For example [{{ "t": title",  "a": "author"}}]""",
+        prompt=f'Recommend 10 books maximum meeting this criteria {user_input}'
     )
-    open_ai_response_as_dict = json.loads(open_ai_response)
+    open_ai_response_as_dict: list[dict] = json.loads(open_ai_response)
 
     recommendations = []
     for book in open_ai_response_as_dict:
         book_data = google_books_wrapper.request_book(title=book["t"], author=book["a"])
         if book_data is not None:
             recommendations.append(book_data)
+
     return json.dumps([book.to_dict_by_alias() for book in recommendations])
