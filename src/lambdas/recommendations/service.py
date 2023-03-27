@@ -1,51 +1,27 @@
 import json
 
-from lambdas.recommendations.wrappers.google_books_wrapper import (
-    AbstractGoogleBooksWrapper,
-)
-from lambdas.recommendations.wrappers.open_ai_wrapper import AbstractOpenAIWrapper
+from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
+from lambdas.recommendations.wrappers.open_ai_wrapper import AbstractOpenAIWrapper, OpenAIWrapper
 
 
-def get_category_recommendations(
-    categories: list[str],
+def get_recommendations_from_text(
     open_ai_wrapper: AbstractOpenAIWrapper,
-    google_books_wrapper: AbstractGoogleBooksWrapper,
+    google_books_wrapper: GoogleBooksWrapper,
+    user_input: str,
 ) -> str:
     open_ai_response = open_ai_wrapper.query(
-        prompt=f"""
-        Recommend a total of 5 books in the categories of {",".join([category for category in categories])}. 
-        Respond in JSON with the keys title as t, author as a. 
-        For example [{{ "t": title",  "a": "author"}}]."""
+        system=f"""
+        You are a book recommendation engine.
+        Respond only in JSON with keys title t, author a. 
+        For example [{{ "t": title",  "a": "author"}}]""",
+        prompt=f'Recommend 10 books maximum meeting this criteria {user_input}'
     )
-    open_ai_response_as_dict = json.loads(open_ai_response)
-    return json.dumps(
-        [
-            google_books_wrapper.request_book(
-                title=book["t"], author=book["a"]
-            ).to_dict_by_alias()
-            for book in open_ai_response_as_dict
-        ]
-    )
+    open_ai_response_as_dict: list[dict] = json.loads(open_ai_response)
 
+    recommendations = []
+    for book in open_ai_response_as_dict:
+        book_data = google_books_wrapper.request_book(title=book["t"], author=book["a"])
+        if book_data is not None:
+            recommendations.append(book_data)
 
-def get_recommendations_from_book(
-    book_name: str,
-    authors: list[str],
-    open_ai_wrapper: AbstractOpenAIWrapper,
-    google_books_wrapper: AbstractGoogleBooksWrapper,
-) -> str:
-    open_ai_response = open_ai_wrapper.query(
-        prompt=f"""
-        Recommend 5 books similar to {book_name} by {", ".join([author for author in authors])}. 
-        Respond in JSON with the keys name as n, author as a. 
-        For example [{{ "n": name",  "a": "author"}}]."""
-    )
-    open_ai_response_as_dict = json.loads(open_ai_response)
-    return json.dumps(
-        [
-            google_books_wrapper.request_book(
-                title=book["t"], author=book["a"]
-            ).to_dict_by_alias()
-            for book in open_ai_response_as_dict
-        ]
-    )
+    return json.dumps([book.to_dict_by_alias() for book in recommendations])
