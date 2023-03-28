@@ -1,8 +1,13 @@
-from typing import Optional
+from typing import Optional, TypedDict
 
 import requests
 
 from lambdas.recommendations.models.book import Book
+
+
+class BookRequest(TypedDict):
+    t: str
+    a: str
 
 
 class GoogleBooksWrapper:
@@ -14,7 +19,7 @@ class GoogleBooksWrapper:
     def get_thumbnail(images: dict) -> Optional[str]:
         if images == {}:
             return None
-        return images.get('thumbnail').replace("&edge=curl", "")
+        return images.get("thumbnail").replace("&edge=curl", "")
 
     @staticmethod
     def get_amazon_url(title: str, authors: list) -> str:
@@ -22,23 +27,25 @@ class GoogleBooksWrapper:
         affiliate = "&tag=zak-affiliate-link"
         if len(authors) > 0:
             return f'{base}{title}+{", ".join([author for author in authors])}&i=stripbooks{affiliate}'
-        return f'{base}{title}&i=stripbooks{affiliate}'
+        return f"{base}{title}&i=stripbooks{affiliate}"
 
-    def request_book(
-        self,
-        title: str,
-        author: str,
-    ) -> Optional[Book]:
-        response = requests.get(
-            url=f"{self.BASE_URL}volumes?q=intitle:{title}+inauthor:{author}&key={self.API_KEY}"
-        )
+    def request_book(self, book: BookRequest) -> Optional[Book]:
+        url = f"{self.BASE_URL}volumes?q=intitle:{book['t']}+inauthor:{book['a']}&key={self.API_KEY}&printType=books&langRestrict=en"
+        response = requests.get(url)
         response_json = response.json()
         response_items = response_json.get("items")
 
         if response_items is None:
             return None
 
-        response_item = response_items[0]
+        responses_with_description = [
+            res for res in response_items if res["volumeInfo"].get("description")
+        ]
+
+        if not responses_with_description:
+            return None
+
+        response_item = responses_with_description[0]
 
         volume_info = response_item["volumeInfo"]
 
@@ -54,5 +61,7 @@ class GoogleBooksWrapper:
             average_rating=volume_info.get("averageRating"),
             total_ratings=volume_info.get("ratingsCount"),
             thumbnail_url=self.get_thumbnail(images=volume_info.get("imageLinks", {})),
-            amazon_search_url=self.get_amazon_url(title=volume_info["title"], authors=volume_info.get("authors", [])),
+            amazon_search_url=self.get_amazon_url(
+                title=volume_info["title"], authors=volume_info.get("authors", [])
+            ),
         )
