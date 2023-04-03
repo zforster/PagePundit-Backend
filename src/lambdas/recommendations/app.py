@@ -4,7 +4,7 @@ import lambdas.recommendations.service as service_layer
 from common.clients.parameter_store import get_google_books_api_key, get_open_ai_api_key
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import (
-    MockOpenAIWrapper,
+    AbstractOpenAIWrapper,
     OpenAIWrapper,
 )
 
@@ -12,7 +12,7 @@ from lambdas.recommendations.wrappers.open_ai_wrapper import (
 def get_recommendations_from_text(
     event: dict,
     context: dict,
-    open_ai_wrapper: Optional[MockOpenAIWrapper] = None,
+    open_ai_wrapper: Optional[AbstractOpenAIWrapper] = None,
     google_books_wrapper: Optional[GoogleBooksWrapper] = None,
 ) -> dict:
     """

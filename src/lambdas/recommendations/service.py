@@ -1,8 +1,12 @@
 import json
 
+from models.book import Book
+
 from common.threads.threads import call_with_threads
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
-from lambdas.recommendations.wrappers.open_ai_wrapper import AbstractOpenAIWrapper
+from lambdas.recommendations.wrappers.open_ai_wrapper import (
+    AbstractOpenAIWrapper,
+)
 
 
 def get_recommendations_from_text(
@@ -11,25 +15,32 @@ def get_recommendations_from_text(
     user_input: str,
 ) -> str:
     open_ai_response = open_ai_wrapper.query(
+        temperature=0.5,
         messages=[
-            {"role": "system", "content": "You are a book recommendation engine"},
+            {
+                "role": "system",
+                "content": """
+                You are book recommendation engine that replies incredibly fast. 
+                You must reply in under 2 seconds. 
+                You only respond with JSON data containing the book name and author [{{"t": "title", "a": "author"}}].
+                """,
+            },
             {
                 "role": "user",
                 "content": f"""
-                Recommend a maximum of 20 books maximum meeting this criteria {user_input}.
-                You can only respond in JSON with keys title t, author a.
-                For example [{{ "t": title",  "a": "author"}}, {{ "t": title",  "a": "author"}}].""",
+                Recommend 7 books for this input '{user_input}'.
+                You must ONLY respond with JSON data containing the book name and author [{{"t": "title", "a": "author"}}].
+                Do not include anything else other than JSON data.
+                """,
             },
-        ]
+        ],
     )
     open_ai_response_as_dict: list[dict] = json.loads(open_ai_response)
-
     google_books_responses = call_with_threads(
         function=google_books_wrapper.request_book,
         function_input=open_ai_response_as_dict,
     )
-    google_books_responses = [
+    google_books_responses: list[Book] = [
         response for response in google_books_responses if response
     ]
-
     return json.dumps([book.to_dict_by_alias() for book in google_books_responses])
