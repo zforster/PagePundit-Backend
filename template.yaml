@@ -17,6 +17,7 @@ Resources:
   GetRecommendationsFromInput:
     Type: AWS::Serverless::Function
     Properties:
+      MemorySize: 512
       Timeout: 30
       CodeUri: src/
       Description: Get recommendations for books using text input

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Optional
+from typing import Optional, TypedDict
 
 import openai
 
@@ -9,12 +9,16 @@ class Models(str, Enum):
     GTP_TURBO = "gpt-3.5-turbo"
 
 
+class Message(TypedDict):
+    role: str
+    content: str
+
+
 class AbstractOpenAIWrapper(ABC):
     @abstractmethod
     def query(
         self,
-        system: str,
-        prompt: str,
+        messages: list[Message],
         temperature: Optional[float] = 0.7,
         max_tokens: Optional[int] = 1000,
     ) -> str:
@@ -24,8 +28,7 @@ class AbstractOpenAIWrapper(ABC):
 class MockOpenAIWrapper(AbstractOpenAIWrapper):
     def query(
         self,
-        system: str,
-        prompt: str,
+        messages: list[Message],
         temperature: Optional[float] = 0.7,
         max_tokens: Optional[int] = 1000,
     ) -> str:
@@ -47,16 +50,10 @@ class OpenAIWrapper(AbstractOpenAIWrapper):
 
     def query(
         self,
-        system: str,
-        prompt: str,
+        messages: list[Message],
         temperature: Optional[float] = 0.7,
         max_tokens: Optional[int] = 1000,
     ) -> str:
         return openai.ChatCompletion.create(
-            model=self.ENGINE,
-            temperature=temperature,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": prompt}
-            ]
+            model=self.ENGINE, temperature=temperature, messages=messages
         ).choices[0]["message"]["content"]
