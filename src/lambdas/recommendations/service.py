@@ -2,33 +2,32 @@ import json
 import logging
 
 from common.threads.threads import call_with_threads
-from lambdas.recommendations.models.book import Book, BookRecommendationResponse
+from lambdas.recommendations.models.book import BookRecommendationResponse
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
-from lambdas.recommendations.wrappers.open_ai_wrapper import AbstractOpenAIWrapper
+from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
 
 
 def get_recommendations_from_text(
-    open_ai_wrapper: AbstractOpenAIWrapper,
+    open_ai_wrapper: OpenAIWrapper,
     google_books_wrapper: GoogleBooksWrapper,
     user_input: str,
 ) -> str:
     open_ai_response = open_ai_wrapper.query(
-        temperature=0.4,
+        temperature=0.6,
         messages=[
             {
                 "role": "system",
                 "content": """
-                You are book recommendation engine that replies incredibly fast. 
-                You must reply in under 2 seconds. 
-                You only respond with JSON data containing the book name and author [{{"t": "title", "a": "author"}}].
+                You are book recommendation engine. 
+                Only respond with JSON data containing book name and author [{{"t": "title", "a": "author"}}]. 
                 """,
             },
             {
                 "role": "user",
                 "content": f"""
-                Recommend 7 books for this input '{user_input}'.
-                You must ONLY respond with JSON data containing the book name and author [{{"t": "title", "a": "author"}}].
-                Do not include anything else other than JSON data.
+                Recommend 5 book for {user_input}.
+                Only respond with JSON data containing book name and author [{{"t": "title", "a": "author"}}].
+                Do not include anything else other than JSON data. 
                 """,
             },
         ],
