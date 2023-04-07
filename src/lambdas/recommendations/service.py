@@ -13,22 +13,15 @@ def get_recommendations_from_text(
     user_input: str,
 ) -> str:
     open_ai_response = open_ai_wrapper.query(
-        temperature=0.6,
+        temperature=0.4,
         messages=[
             {
                 "role": "system",
-                "content": """
-                You are book recommendation engine. 
-                Only respond with JSON data containing book name and author [{{"t": "title", "a": "author"}}]. 
-                """,
+                "content": """You are book recommendation engine. Only respond with JSON data containing book name and author [{{'t": "title", "a": "author"}}]."""
             },
             {
                 "role": "user",
-                "content": f"""
-                Recommend 5 book for {user_input}.
-                Only respond with JSON data containing book name and author [{{"t": "title", "a": "author"}}].
-                Do not include anything else other than JSON data. 
-                """,
+                "content": f"""Recommend 5 book for {user_input}. Only respond with JSON data containing book name and author [{{"t": "title", "a": "author"}}]. Do not include anything else other than JSON data.""",
             },
         ],
     )

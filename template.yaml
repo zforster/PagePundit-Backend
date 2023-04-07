@@ -28,7 +28,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyNextBookAPI
-            Path: /recommendations_from_text
+            Path: /recommendations
             Method: post
       Role: !GetAtt LambdaRole.Arn
   # ROLES
