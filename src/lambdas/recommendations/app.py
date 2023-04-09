@@ -1,6 +1,8 @@
+import os
 from typing import Optional
 
 import lambdas.recommendations.service as service_layer
+from common.clients.dynamo import Dynamo
 from common.clients.parameter_store import get_google_books_api_key, get_open_ai_api_key
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
@@ -31,6 +33,7 @@ def get_recommendations_from_text(
         "body": service_layer.get_recommendations_from_text(
             open_ai_wrapper=open_ai_wrapper,
             google_books_wrapper=google_books_wrapper,
+            dynamo=Dynamo(table_name=os.environ["RECOMMENDATIONS_TABLE"]),
             user_input=event["body"],
         ),
     }

@@ -31,6 +31,9 @@ Resources:
             Path: /recommendations
             Method: post
       Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
   # ROLES
   LambdaRole:
     Type: AWS::IAM::Role
