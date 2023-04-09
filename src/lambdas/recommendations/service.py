@@ -2,10 +2,17 @@ import json
 import logging
 import uuid
 from datetime import datetime
+from typing import Optional
+
+from pydantic import parse_obj_as
 
 from common.clients.dynamo import Dynamo
 from common.threads.threads import call_with_threads
-from lambdas.recommendations.models.book import BookRecommendationResponse
+from lambdas.recommendations.models.book import (
+    BookRecommendationResponse,
+    ExclusiveStartKey,
+    FetchBookRecommendationsResponse,
+)
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
 
@@ -32,15 +39,16 @@ def get_recommendations_from_text(
         response_data = BookRecommendationResponse(
             books=[response for response in google_books_responses if response],
             user_input=user_input,
-        ).to_dict_by_alias()
+        )
         dynamo.store_in_dynamodb(
-            {
-                **response_data,
+            item={
+                **response_data.dict(),
+                "recommendation_type": "search",
                 "recommendation_id": str(uuid.uuid4()),
                 "timestamp": str(datetime.utcnow().isoformat()),
             }
         )
-        return json.dumps(response_data)
+        return json.dumps(response_data.to_dict_by_alias(), default=float)
     except json.JSONDecodeError:
         logging.error(f"open ai response - {open_ai_response}")
         return json.dumps(
@@ -49,3 +57,24 @@ def get_recommendations_from_text(
                 user_input=user_input,
             ).to_dict_by_alias()
         )
+
+
+def read_recommendations(
+    dynamo: Dynamo, exclusive_start_key: Optional[ExclusiveStartKey] = None
+) -> dict:
+    results = dynamo.paginate(
+        key_condition_expression="recommendation_type = :type",
+        expression_attribute={":type": "search"},
+        limit=10,
+        exclusive_start_key=exclusive_start_key.dict()
+        if exclusive_start_key
+        else exclusive_start_key,
+    )
+    response = parse_obj_as(
+        FetchBookRecommendationsResponse,
+        {
+            "recommendations": results["Items"],
+            "exclusive_start_key": results.get("LastEvaluatedKey"),
+        },
+    )
+    return response.to_dict_by_alias()

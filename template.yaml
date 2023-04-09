@@ -34,6 +34,23 @@ Resources:
       Environment:
         Variables:
           RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
+  FetchRecommendations:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Description: Fetch stored recommendations
+      Handler: lambdas.recommendations.app.fetch_recommendations
+      Runtime: python3.9
+      Environment:
+        Variables:
+          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
+      Events:
+        FetchRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /fetch_recommendations
+            Method: post
   # ROLES
   LambdaRole:
     Type: AWS::IAM::Role
@@ -74,21 +91,30 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:*
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                Resource: !GetAtt RecommendationsTable.Arn
   # DYNAMODB
   RecommendationsTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       AttributeDefinitions:
-        - AttributeName: 'recommendation_id'
+        - AttributeName: 'recommendation_type'
           AttributeType: 'S'
         - AttributeName: 'timestamp'
           AttributeType: 'S'
       KeySchema:
-        - AttributeName: 'recommendation_id'
+        - AttributeName: 'recommendation_type'
           KeyType: 'HASH'
         - AttributeName: 'timestamp'
           KeyType: 'RANGE'
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 25
+        WriteCapacityUnits: 25
