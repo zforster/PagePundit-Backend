@@ -28,7 +28,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyNextBookAPI
-            Path: /recommendations
+            Path: /new
             Method: post
       Role: !GetAtt LambdaRole.Arn
       Environment:
@@ -41,6 +41,7 @@ Resources:
       Description: Fetch stored recommendations
       Handler: lambdas.recommendations.app.fetch_recommendations
       Runtime: python3.9
+      Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
           RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
@@ -49,7 +50,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyNextBookAPI
-            Path: /fetch_recommendations
+            Path: /recommendations
             Method: post
   # ROLES
   LambdaRole:
@@ -99,6 +100,7 @@ Resources:
                 Action:
                   - dynamodb:GetItem
                   - dynamodb:PutItem
+                  - dynamodb:Query
                 Resource: !GetAtt RecommendationsTable.Arn
   # DYNAMODB
   RecommendationsTable:

@@ -23,12 +23,18 @@ def get_recommendations_from_text(
     dynamo: Dynamo,
     user_input: str,
 ) -> str:
-    open_ai_response = open_ai_wrapper.query(
+    open_ai_response = open_ai_wrapper.chat(
         temperature=0.4,
-        user_input=f"""
-        You help people find books they might want to read. Recommend 7 books for '{user_input}'.
-        Respond with JSON data containing book name and author [{{"t": "title", "a": "author"}}].
-        Only include the JSON data.""",
+        messages=[
+            {
+                "role": "system",
+                "content": "You help people find books they might want to read.",
+            },
+            {
+                "role": "user",
+                "content": f"""Recommend 10 books for '{user_input}'. Respond with JSON data containing book name and author [{{"t": "title", "a": "author"}}]. Only include the JSON data.""",
+            },
+        ],
     )
     try:
         open_ai_response_as_dict: list[dict] = json.loads(open_ai_response)
@@ -51,17 +57,11 @@ def get_recommendations_from_text(
         return json.dumps(response_data.to_dict_by_alias(), default=float)
     except json.JSONDecodeError:
         logging.error(f"open ai response - {open_ai_response}")
-        return json.dumps(
-            BookRecommendationResponse(
-                books=[],
-                user_input=user_input,
-            ).to_dict_by_alias()
-        )
 
 
 def read_recommendations(
     dynamo: Dynamo, exclusive_start_key: Optional[ExclusiveStartKey] = None
-) -> dict:
+) -> str:
     results = dynamo.paginate(
         key_condition_expression="recommendation_type = :type",
         expression_attribute={":type": "search"},
@@ -77,4 +77,4 @@ def read_recommendations(
             "exclusive_start_key": results.get("LastEvaluatedKey"),
         },
     )
-    return response.to_dict_by_alias()
+    return json.dumps(response.to_dict_by_alias(), default=float)

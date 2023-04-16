@@ -2,12 +2,12 @@ import json
 import os
 from typing import Optional
 
-from models.book import ExclusiveStartKey
 from pydantic import parse_obj_as
 
 import lambdas.recommendations.service as service_layer
 from common.clients.dynamo import Dynamo
 from common.clients.parameter_store import get_google_books_api_key, get_open_ai_api_key
+from lambdas.recommendations.models.book import ExclusiveStartKey
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
 
@@ -52,12 +52,13 @@ def fetch_recommendations(
     """
     Fetch stored recommendations in batches of 10
     """
-    if event["body"] == "":
+    start_key = json.loads(event["body"])["exclusiveStartKey"]
+    if start_key is None:
         exclusive_start_key = None
     else:
         exclusive_start_key = parse_obj_as(
             ExclusiveStartKey,
-            json.loads(event["body"]),
+            {**start_key},
         )
 
     return {
