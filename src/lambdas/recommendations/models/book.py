@@ -21,6 +21,7 @@ class Book(SnakeToCamelCaseModel):
 
 class BookRecommendationResponse(SnakeToCamelCaseModel):
     user_input: str
+    timestamp: str
     books: list[Book]
 
 

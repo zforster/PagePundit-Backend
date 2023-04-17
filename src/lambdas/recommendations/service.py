@@ -45,13 +45,13 @@ def get_recommendations_from_text(
         response_data = BookRecommendationResponse(
             books=[response for response in google_books_responses if response],
             user_input=user_input,
+            timestamp=str(datetime.utcnow().isoformat()),
         )
         dynamo.store_in_dynamodb(
             item={
                 **response_data.dict(),
                 "recommendation_type": "search",
                 "recommendation_id": str(uuid.uuid4()),
-                "timestamp": str(datetime.utcnow().isoformat()),
             }
         )
         return json.dumps(response_data.to_dict_by_alias(), default=float)
@@ -65,7 +65,7 @@ def read_recommendations(
     results = dynamo.paginate(
         key_condition_expression="recommendation_type = :type",
         expression_attribute={":type": "search"},
-        limit=10,
+        limit=6,
         exclusive_start_key=exclusive_start_key.dict()
         if exclusive_start_key
         else exclusive_start_key,
