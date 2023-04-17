@@ -1,4 +1,3 @@
-import json
 import os
 from typing import Optional
 
@@ -45,20 +44,21 @@ def get_recommendations_from_text(
     }
 
 
-def fetch_recommendations(
+def get_recommendations(
     event: dict,
     context: dict,
 ) -> dict:
     """
     Fetch stored recommendations in batches of 10
     """
-    start_key = json.loads(event["body"])["exclusiveStartKey"]
-    if start_key is None:
+    timestamp = event["pathParameters"]["timestamp"]
+    recommendation_type = event["pathParameters"]["recommendation_type"]
+    if timestamp is None:
         exclusive_start_key = None
     else:
         exclusive_start_key = parse_obj_as(
             ExclusiveStartKey,
-            {**start_key},
+            {"recommendation_type": recommendation_type, "timestamp": timestamp},
         )
 
     return {
