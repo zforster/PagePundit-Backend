@@ -68,8 +68,8 @@ def get_recommendation_by_id(
     recommendation_repo: DynamoRecommendationRepo, recommendation_id: str
 ) -> str:
     return json.dumps(
-        recommendation_repo.fetch_recommendations(
-            exclusive_start_key=recommendation_id
+        recommendation_repo.get_recommendation_by_id(
+            recommendation_id=recommendation_id
         ).to_dict_by_alias(),
         default=float,
     )

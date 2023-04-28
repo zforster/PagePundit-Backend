@@ -19,7 +19,7 @@ class DynamoRecommendationRepo:
 
     def store_recommendation(self, recommendation: BookRecommendationResponse) -> None:
         self.table.put_item(
-            item={
+            Item={
                 **recommendation.dict(),
                 "recommendation_type": "search",
                 "recommendation_id": recommendation.recommendation_id,
@@ -36,7 +36,7 @@ class DynamoRecommendationRepo:
             if exclusive_start_key
             else None,
             ScanIndexForward=False,
-            Limit=5,
+            Limit=7,
         )
 
         response = parse_obj_as(
