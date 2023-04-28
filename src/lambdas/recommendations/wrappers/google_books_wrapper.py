@@ -38,14 +38,16 @@ class GoogleBooksWrapper:
         if response_items is None:
             return None
 
-        responses_with_description = [
-            res for res in response_items if res["volumeInfo"].get("description")
+        responses_with_images = [
+            res
+            for res in response_items
+            if self.get_thumbnail(images=res["volumeInfo"].get("imageLinks", {}))
         ]
 
-        if not responses_with_description:
+        if not responses_with_images:
             return None
 
-        response_item = responses_with_description[0]
+        response_item = responses_with_images[0]
 
         volume_info = response_item["volumeInfo"]
 
