@@ -52,6 +52,24 @@ Resources:
             RestApiId: !Ref MyNextBookAPI
             Path: /recommendations/{recommendation_type}/{timestamp}
             Method: get
+  GetRecommendationById:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Description: Fetch stored recommendation by specific id
+      Handler: lambdas.recommendations.app.get_recommendation_by_id
+      Runtime: python3.9
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
+      Events:
+        FetchRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /{recommendation_id}
+            Method: get
   # ROLES
   LambdaRole:
     Type: AWS::IAM::Role
@@ -109,6 +127,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: 'recommendation_type'
           AttributeType: 'S'
+        - AttributeName: 'recommendation_id'
+          AttributeType: 'S'
         - AttributeName: 'timestamp'
           AttributeType: 'S'
       KeySchema:
@@ -120,3 +140,13 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 25
         WriteCapacityUnits: 25
+      GlobalSecondaryIndexes:
+        - IndexName: RecommendationIdIndex
+          KeySchema:
+            - AttributeName: 'recommendation_id'
+              KeyType: 'HASH'
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 25
+            WriteCapacityUnits: 25

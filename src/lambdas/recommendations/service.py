@@ -4,15 +4,12 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import parse_obj_as
-
-from common.clients.dynamo import Dynamo
 from common.threads.threads import call_with_threads
 from lambdas.recommendations.models.book import (
     BookRecommendationResponse,
     ExclusiveStartKey,
-    FetchBookRecommendationsResponse,
 )
+from lambdas.recommendations.repository.recommendation import DynamoRecommendationRepo
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
 
@@ -20,7 +17,7 @@ from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
 def get_recommendations_from_text(
     open_ai_wrapper: OpenAIWrapper,
     google_books_wrapper: GoogleBooksWrapper,
-    dynamo: Dynamo,
+    recommendation_repo: DynamoRecommendationRepo,
     user_input: str,
 ) -> str:
     open_ai_response = open_ai_wrapper.chat(
@@ -37,44 +34,42 @@ def get_recommendations_from_text(
         ],
     )
     try:
+        recommendation_id = str(uuid.uuid4())
         open_ai_response_as_dict: list[dict] = json.loads(open_ai_response)
         google_books_responses = call_with_threads(
             function=google_books_wrapper.request_book,
             function_input=open_ai_response_as_dict,
         )
         response_data = BookRecommendationResponse(
+            recommendation_id=recommendation_id,
             books=[response for response in google_books_responses if response],
             user_input=user_input,
             timestamp=str(datetime.utcnow().isoformat()),
         )
-        dynamo.store_in_dynamodb(
-            item={
-                **response_data.dict(),
-                "recommendation_type": "search",
-                "recommendation_id": str(uuid.uuid4()),
-            }
-        )
+        recommendation_repo.store_recommendation(recommendation=response_data)
         return json.dumps(response_data.to_dict_by_alias(), default=float)
     except json.JSONDecodeError:
         logging.error(f"open ai response - {open_ai_response}")
 
 
 def read_recommendations(
-    dynamo: Dynamo, exclusive_start_key: Optional[ExclusiveStartKey] = None
+    recommendation_repo: DynamoRecommendationRepo,
+    exclusive_start_key: Optional[ExclusiveStartKey] = None,
 ) -> str:
-    results = dynamo.paginate(
-        key_condition_expression="recommendation_type = :type",
-        expression_attribute={":type": "search"},
-        limit=6,
-        exclusive_start_key=exclusive_start_key.dict()
-        if exclusive_start_key
-        else exclusive_start_key,
+    return json.dumps(
+        recommendation_repo.fetch_recommendations(
+            exclusive_start_key=exclusive_start_key
+        ).to_dict_by_alias(),
+        default=float,
     )
-    response = parse_obj_as(
-        FetchBookRecommendationsResponse,
-        {
-            "recommendations": results["Items"],
-            "exclusive_start_key": results.get("LastEvaluatedKey"),
-        },
+
+
+def get_recommendation_by_id(
+    recommendation_repo: DynamoRecommendationRepo, recommendation_id: str
+) -> str:
+    return json.dumps(
+        recommendation_repo.fetch_recommendations(
+            exclusive_start_key=recommendation_id
+        ).to_dict_by_alias(),
+        default=float,
     )
-    return json.dumps(response.to_dict_by_alias(), default=float)
