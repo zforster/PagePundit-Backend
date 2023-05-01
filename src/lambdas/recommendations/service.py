@@ -48,8 +48,9 @@ def get_recommendations_from_text(
         )
         recommendation_repo.store_recommendation(recommendation=response_data)
         return json.dumps(response_data.to_dict_by_alias(), default=float)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
         logging.error(f"open ai response - {open_ai_response}")
+        raise Exception(e)
 
 
 def read_recommendations(

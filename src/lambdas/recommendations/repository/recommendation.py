@@ -36,7 +36,7 @@ class DynamoRecommendationRepo:
             if exclusive_start_key
             else None,
             ScanIndexForward=False,
-            Limit=7,
+            Limit=5,
         )
 
         response = parse_obj_as(

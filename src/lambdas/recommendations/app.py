@@ -9,6 +9,21 @@ from lambdas.recommendations.repository.recommendation import DynamoRecommendati
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
 
+ORIGINS = {'http://localhost:3000', 'https://zforster.github.io'}
+
+
+def get_response_headers(event: dict) -> dict:
+    request_origin = event['headers']['origin']
+    response_origin = None
+    for origin in ORIGINS:
+        if origin == request_origin:
+            response_origin = origin
+    return {
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Origin": response_origin,
+        "Access-Control-Allow-Methods": "GET",
+    }
+
 
 def get_recommendations_from_text(
     event: dict,
@@ -27,11 +42,7 @@ def get_recommendations_from_text(
 
     return {
         "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "http://localhost:3000",
-            "Access-Control-Allow-Methods": "GET",
-        },
+        "headers": get_response_headers(event=event),
         "body": service_layer.get_recommendations_from_text(
             open_ai_wrapper=open_ai_wrapper,
             google_books_wrapper=google_books_wrapper,
@@ -60,11 +71,7 @@ def get_recommendations(
 
     return {
         "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "http://localhost:3000",
-            "Access-Control-Allow-Methods": "GET",
-        },
+        "headers": get_response_headers(event=event),
         "body": service_layer.read_recommendations(
             recommendation_repo=DynamoRecommendationRepo(),
             exclusive_start_key=exclusive_start_key,
@@ -79,11 +86,7 @@ def get_recommendation_by_id(event: dict, context: dict) -> dict:
     recommendation_id = event["pathParameters"]["recommendation_id"]
     return {
         "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "http://localhost:3000",
-            "Access-Control-Allow-Methods": "GET",
-        },
+        "headers": get_response_headers(event=event),
         "body": service_layer.get_recommendation_by_id(
             recommendation_id=recommendation_id,
             recommendation_repo=DynamoRecommendationRepo(),
