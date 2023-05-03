@@ -9,11 +9,11 @@ from lambdas.recommendations.repository.recommendation import DynamoRecommendati
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
 
-ORIGINS = {'http://localhost:3000', 'https://zforster.github.io'}
+ORIGINS = {"https://pagepundit.com"}
 
 
 def get_response_headers(event: dict) -> dict:
-    request_origin = event['headers']['origin']
+    request_origin = event["headers"]["origin"]
     response_origin = None
     for origin in ORIGINS:
         if origin == request_origin:

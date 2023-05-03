@@ -12,7 +12,7 @@ Resources:
       Cors:
         AllowMethods: "'GET,POST,OPTIONS'"
         AllowHeaders: "'content-type'"
-        AllowOrigin: "'https://zforster.github.io','http://localhost:3000'"
+        AllowOrigin: "'https://pagepundit.com','http://localhost:3000'"
   # LAMBDA - RECOMMENDATIONS
   GetNewRecommendation:
     Type: AWS::Serverless::Function

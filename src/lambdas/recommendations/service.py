@@ -40,14 +40,25 @@ def get_recommendations_from_text(
             function=google_books_wrapper.request_book,
             function_input=open_ai_response_as_dict,
         )
-        response_data = BookRecommendationResponse(
+
+        seen_names = set()
+        books = []
+        for book in google_books_responses:
+            if not book:
+                continue
+            book_hash = f"{book.title}{book.subtitle}"
+            if book_hash not in seen_names and book:
+                books.append(book)
+                seen_names.add(book_hash)
+
+        recommendation_data = BookRecommendationResponse(
             recommendation_id=recommendation_id,
-            books=[response for response in google_books_responses if response],
+            books=books,
             user_input=user_input,
             timestamp=str(datetime.utcnow().isoformat()),
         )
-        recommendation_repo.store_recommendation(recommendation=response_data)
-        return json.dumps(response_data.to_dict_by_alias(), default=float)
+        recommendation_repo.store_recommendation(recommendation=recommendation_data)
+        return json.dumps(recommendation_data.to_dict_by_alias(), default=float)
     except json.JSONDecodeError as e:
         logging.error(f"open ai response - {open_ai_response}")
         raise Exception(e)
