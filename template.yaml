@@ -2,6 +2,15 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Resources for MyNextBook backend
 
+Parameters:
+  StackType:
+    Type: String
+    Default: 'Develop'
+    AllowedValues: ['Develop', 'Production']
+    Description: Specify the stack type
+
+Conditions:
+  IsProduction: !Equals [!Ref StackType, 'Production']
 
 Resources:
   # API GATEWAY
@@ -12,7 +21,7 @@ Resources:
       Cors:
         AllowMethods: "'GET,POST,OPTIONS'"
         AllowHeaders: "'content-type'"
-        AllowOrigin: "'http://localhost:3000'"
+        AllowOrigin: !If [IsProduction, "'https://pagepundit.com'", "'http://localhost:3000'"]
   # LAMBDA - RECOMMENDATIONS
   GetNewRecommendation:
     Type: AWS::Serverless::Function
@@ -140,8 +149,8 @@ Resources:
           KeyType: 'RANGE'
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: 25
-        WriteCapacityUnits: 25
+        ReadCapacityUnits: !If [IsProduction, 20, 5]
+        WriteCapacityUnits: !If [IsProduction, 20, 5]
       GlobalSecondaryIndexes:
         - IndexName: RecommendationIdIndex
           KeySchema:
@@ -150,5 +159,5 @@ Resources:
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
-            ReadCapacityUnits: 25
-            WriteCapacityUnits: 25
+            ReadCapacityUnits: !If [IsProduction, 20, 5]
+            WriteCapacityUnits: !If [IsProduction, 20, 5]
