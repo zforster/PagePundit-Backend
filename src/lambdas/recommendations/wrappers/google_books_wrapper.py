@@ -23,11 +23,10 @@ class GoogleBooksWrapper:
 
     @staticmethod
     def get_amazon_url(title: str, authors: list) -> str:
-        base = "https://www.amazon.co.uk/s?k="
-        affiliate = "&tag=zak-affiliate-link"
+        base = "s?k="
         if len(authors) > 0:
-            return f'{base}{title}+{", ".join([author for author in authors])}&i=stripbooks{affiliate}'
-        return f"{base}{title}&i=stripbooks{affiliate}"
+            return f'{base}{title}+{", ".join([author for author in authors])}&i=stripbooks'
+        return f"{base}{title}&i=stripbooks"
 
     def request_book(self, book: BookRequest) -> Optional[Book]:
         url = f"{self.BASE_URL}volumes?q=intitle:{book['t']}+inauthor:{book['a']}&key={self.API_KEY}&printType=books&langRestrict=en"
