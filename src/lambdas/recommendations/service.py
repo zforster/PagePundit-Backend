@@ -2,6 +2,7 @@ import json
 import logging
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
 from common.threads.threads import call_with_threads
@@ -51,9 +52,13 @@ def get_recommendations_from_text(
                 books.append(book)
                 seen_names.add(book_hash)
 
+        sorted_books = sorted(
+            books, key=lambda b: b.average_rating or Decimal(0), reverse=True
+        )
+
         recommendation_data = BookRecommendationResponse(
             recommendation_id=recommendation_id,
-            books=books,
+            books=sorted_books,
             user_input=user_input,
             timestamp=str(datetime.utcnow().isoformat()),
         )
