@@ -154,8 +154,8 @@ Resources:
           KeyType: 'RANGE'
       BillingMode: PROVISIONED
       ProvisionedThroughput:
-        ReadCapacityUnits: !If [IsProduction, 20, 5]
-        WriteCapacityUnits: !If [IsProduction, 20, 5]
+        ReadCapacityUnits: !If [IsProduction, 15, 2]
+        WriteCapacityUnits: !If [IsProduction, 15, 2]
       GlobalSecondaryIndexes:
         - IndexName: RecommendationIdIndex
           KeySchema:
@@ -164,5 +164,5 @@ Resources:
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
-            ReadCapacityUnits: !If [IsProduction, 20, 5]
-            WriteCapacityUnits: !If [IsProduction, 20, 5]
+            ReadCapacityUnits: !If [IsProduction, 15, 2]
+            WriteCapacityUnits: !If [IsProduction, 15, 2]
