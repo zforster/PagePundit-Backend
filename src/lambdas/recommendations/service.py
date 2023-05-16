@@ -52,6 +52,9 @@ def get_recommendations_from_text(
                 books.append(book)
                 seen_names.add(book_hash)
 
+        if not books:
+            raise Exception('No recommendations found')
+
         sorted_books = sorted(
             books, key=lambda b: b.average_rating or Decimal(0), reverse=True
         )
