@@ -22,7 +22,7 @@ def get_recommendations_from_text(
     user_input: str,
 ) -> str:
     open_ai_response = open_ai_wrapper.chat(
-        temperature=0.4,
+        temperature=0.5,
         messages=[
             {
                 "role": "system",
