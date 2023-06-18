@@ -56,7 +56,7 @@ class GoogleBooksWrapper:
             authors=volume_info.get("authors", []),
             publisher=volume_info.get("publisher"),
             publish_date=volume_info.get("publishedDate"),
-            description=book['r'],
+            description=volume_info.get("description"),
             pages=volume_info.get("pageCount"),
             categories=volume_info.get("categories", []),
             average_rating=volume_info.get("averageRating"),

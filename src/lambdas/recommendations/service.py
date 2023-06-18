@@ -30,7 +30,7 @@ def get_recommendations_from_text(
             },
             {
                 "role": "user",
-                "content": f"""Recommend 6 books for '{user_input}'. Respond with JSON data containing book name, author and short reason as to why you think it is a good fit under 20 words. [{{"t": "title", "a": "author", "r": "reason"}}]. Only include the JSON data.""",
+                "content": f"""Recommend a maximum of 10 books for '{user_input}'. Respond with JSON data containing book name and author. [{{"t": "title", "a": "author"}}]. Only include the JSON data.""",
             },
         ],
     )
