@@ -66,6 +66,42 @@ Resources:
             RestApiId: !Ref MyNextBookAPI
             Path: /{recommendation_id}
             Method: get
+  GetSummary:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Description: Get a summary for a recommended book
+      Handler: lambdas.recommendations.app.get_book_summary
+      Runtime: python3.9
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
+      Events:
+        FetchRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /{recommendation_id}/{index}
+            Method: get
+  GetSummary:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Description: Get a reason someone would want to read the book based off their user input
+      Handler: lambdas.recommendations.app.get_reason
+      Runtime: python3.9
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
+      Events:
+        FetchRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /{recommendation_id}/{index}
+            Method: get
   # ROLES
   LambdaRole:
     Type: AWS::IAM::Role

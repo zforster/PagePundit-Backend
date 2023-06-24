@@ -62,3 +62,49 @@ def get_recommendation_by_id(event: dict, context: dict) -> dict:
             recommendation_repo=DynamoRecommendationRepo(),
         ),
     }
+
+
+def get_book_summary(
+    event: dict, context: dict, open_ai_wrapper: Optional[OpenAIWrapper] = None
+) -> dict:
+    """
+    Get book summary
+    """
+    if not open_ai_wrapper:
+        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+
+    recommendation_id = event["pathParameters"]["recommendation_id"]
+    index = event["pathParameters"]["index"]
+    return {
+        "statusCode": 200,
+        "headers": get_response_headers(event=event),
+        "body": service_layer.get_book_summary(
+            recommendation_id=recommendation_id,
+            recommendation_repo=DynamoRecommendationRepo(),
+            open_ai_wrapper=open_ai_wrapper,
+            index=index,
+        ),
+    }
+
+
+def get_reason(
+    event: dict, context: dict, open_ai_wrapper: Optional[OpenAIWrapper] = None
+) -> dict:
+    """
+    Get a reason someone would want to read the book based off their user input
+    """
+    if not open_ai_wrapper:
+        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+
+    recommendation_id = event["pathParameters"]["recommendation_id"]
+    index = event["pathParameters"]["index"]
+    return {
+        "statusCode": 200,
+        "headers": get_response_headers(event=event),
+        "body": service_layer.get_reason(
+            recommendation_id=recommendation_id,
+            recommendation_repo=DynamoRecommendationRepo(),
+            open_ai_wrapper=open_ai_wrapper,
+            index=index,
+        ),
+    }
