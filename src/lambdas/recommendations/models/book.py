@@ -24,13 +24,3 @@ class BookRecommendationResponse(SnakeToCamelCaseModel):
     user_input: str
     timestamp: str
     books: list[Book]
-
-
-class ExclusiveStartKey(SnakeToCamelCaseModel):
-    recommendation_type: str
-    timestamp: str
-
-
-class FetchBookRecommendationsResponse(SnakeToCamelCaseModel):
-    recommendations: list[BookRecommendationResponse]
-    exclusive_start_key: Optional[ExclusiveStartKey] = None

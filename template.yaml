@@ -48,24 +48,6 @@ Resources:
       Environment:
         Variables:
           RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
-  GetRecommendations:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/
-      Description: Fetch stored recommendations
-      Handler: lambdas.recommendations.app.get_recommendations
-      Runtime: python3.9
-      Role: !GetAtt LambdaRole.Arn
-      Environment:
-        Variables:
-          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
-      Events:
-        FetchRecommendations:
-          Type: Api
-          Properties:
-            RestApiId: !Ref MyNextBookAPI
-            Path: /recommendations/{recommendation_type}/{timestamp}
-            Method: get
   GetRecommendationById:
     Type: AWS::Serverless::Function
     Properties:

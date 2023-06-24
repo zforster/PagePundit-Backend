@@ -3,13 +3,9 @@ import logging
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 from common.threads.threads import call_with_threads
-from lambdas.recommendations.models.book import (
-    BookRecommendationResponse,
-    ExclusiveStartKey,
-)
+from lambdas.recommendations.models.book import BookRecommendationResponse
 from lambdas.recommendations.repository.recommendation import DynamoRecommendationRepo
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
@@ -26,11 +22,11 @@ def get_recommendations_from_text(
         messages=[
             {
                 "role": "system",
-                "content": "You help people find books they might want to read.",
+                "content": f"""You help people find books they might want to read. Respond ONLY with JSON data containing book name and author. E.g. [{{"t": "title", "a": "author"}}].""",
             },
             {
                 "role": "user",
-                "content": f"""Recommend a maximum of 10 books for '{user_input}'. Respond with JSON data containing book name and author. [{{"t": "title", "a": "author"}}]. Only include the JSON data.""",
+                "content": f"""Recommend a maximum of 15 books for '{user_input}'. Respond with JSON data containing book name and author only. Example response: [{{"t": "title", "a": "author"}}]. Do not respond with anything but the example JSON format, no other words.""",
             },
         ],
     )
@@ -53,7 +49,7 @@ def get_recommendations_from_text(
                 seen_names.add(book_hash)
 
         if not books:
-            raise Exception('No recommendations found')
+            raise Exception("No recommendations found")
 
         sorted_books = sorted(
             books, key=lambda b: b.average_rating or Decimal(0), reverse=True
@@ -72,18 +68,6 @@ def get_recommendations_from_text(
         raise Exception(e)
 
 
-def read_recommendations(
-    recommendation_repo: DynamoRecommendationRepo,
-    exclusive_start_key: Optional[ExclusiveStartKey] = None,
-) -> str:
-    return json.dumps(
-        recommendation_repo.fetch_recommendations(
-            exclusive_start_key=exclusive_start_key
-        ).to_dict_by_alias(),
-        default=float,
-    )
-
-
 def get_recommendation_by_id(
     recommendation_repo: DynamoRecommendationRepo, recommendation_id: str
 ) -> str:
@@ -93,3 +77,53 @@ def get_recommendation_by_id(
         ).to_dict_by_alias(),
         default=float,
     )
+
+
+def get_book_summary(
+    open_ai_wrapper: OpenAIWrapper,
+    recommendation_id: str,
+    recommendation_repo: DynamoRecommendationRepo,
+    index: int,
+) -> str:
+    recommendation = recommendation_repo.get_recommendation_by_id(
+        recommendation_id=recommendation_id
+    )
+    book = recommendation.books[index]
+    authors = "& ".join(book.authors)
+
+    open_ai_response = open_ai_wrapper.chat(
+        temperature=0.4,
+        messages=[
+            {
+                "role": "user",
+                "content": f"""
+                In 70 words or less write a summary about the book {book.title} by {authors}.
+                Only respond with the summary.""",
+            },
+        ],
+    )
+    return open_ai_response
+
+
+def get_reason(
+    open_ai_wrapper: OpenAIWrapper,
+    recommendation_id: str,
+    recommendation_repo: DynamoRecommendationRepo,
+    index: int,
+) -> str:
+    recommendation = recommendation_repo.get_recommendation_by_id(
+        recommendation_id=recommendation_id
+    )
+    book = recommendation.books[index]
+    authors = "& ".join(book.authors)
+    open_ai_response = open_ai_wrapper.chat(
+        temperature=0.4,
+        messages=[
+            {
+                "role": "user",
+                "content": f"""
+                In 70 words or less explain why someone who asked for books '{recommendation.user_input}' should read {book.title} by {authors}.""",
+            },
+        ],
+    )
+    return open_ai_response
