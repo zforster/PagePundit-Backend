@@ -82,7 +82,7 @@ def get_book_summary(
             recommendation_id=recommendation_id,
             recommendation_repo=DynamoRecommendationRepo(),
             open_ai_wrapper=open_ai_wrapper,
-            index=index,
+            index=int(index),
         ),
     }
 
@@ -105,6 +105,6 @@ def get_reason(
             recommendation_id=recommendation_id,
             recommendation_repo=DynamoRecommendationRepo(),
             open_ai_wrapper=open_ai_wrapper,
-            index=index,
+            index=int(index),
         ),
     }

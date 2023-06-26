@@ -102,7 +102,7 @@ def get_book_summary(
             },
         ],
     )
-    return open_ai_response
+    return json.dumps({'data': open_ai_response})
 
 
 def get_reason(
@@ -121,9 +121,8 @@ def get_reason(
         messages=[
             {
                 "role": "user",
-                "content": f"""
-                In 70 words or less explain why someone who asked for books '{recommendation.user_input}' should read {book.title} by {authors}.""",
+                "content": f"In 50 words or less explain to a person why {book.title} by {authors} will appeal to someone looking for {recommendation.user_input}. Reference the user's input in the response.",
             },
         ],
     )
-    return open_ai_response
+    return json.dumps({'data': open_ai_response})

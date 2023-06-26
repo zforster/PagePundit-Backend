@@ -69,6 +69,7 @@ Resources:
   GetSummary:
     Type: AWS::Serverless::Function
     Properties:
+      Timeout: 30
       CodeUri: src/
       Description: Get a summary for a recommended book
       Handler: lambdas.recommendations.app.get_book_summary
@@ -82,11 +83,12 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyNextBookAPI
-            Path: /{recommendation_id}/{index}
+            Path: /summary/{recommendation_id}/{index}
             Method: get
-  GetSummary:
+  GetReason:
     Type: AWS::Serverless::Function
     Properties:
+      Timeout: 30
       CodeUri: src/
       Description: Get a reason someone would want to read the book based off their user input
       Handler: lambdas.recommendations.app.get_reason
@@ -100,7 +102,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyNextBookAPI
-            Path: /{recommendation_id}/{index}
+            Path: /reason/{recommendation_id}/{index}
             Method: get
   # ROLES
   LambdaRole:
