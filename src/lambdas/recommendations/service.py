@@ -102,7 +102,7 @@ def get_book_summary(
             },
         ],
     )
-    return json.dumps({'data': open_ai_response})
+    return json.dumps({"data": open_ai_response})
 
 
 def get_reason(
@@ -125,4 +125,4 @@ def get_reason(
             },
         ],
     )
-    return json.dumps({'data': open_ai_response})
+    return json.dumps({"data": open_ai_response})
