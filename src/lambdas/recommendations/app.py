@@ -108,3 +108,13 @@ def get_reason(
             index=int(index),
         ),
     }
+
+
+def get_latest_recommendation(event: dict, context: dict) -> dict:
+    return {
+        "statusCode": 200,
+        "headers": get_response_headers(event=event),
+        "body": service_layer.get_latest_recommendation(
+            recommendation_repo=DynamoRecommendationRepo()
+        ),
+    }
