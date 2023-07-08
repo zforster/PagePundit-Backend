@@ -97,7 +97,7 @@ def get_book_summary(
             {
                 "role": "user",
                 "content": f"""
-                In 70 words or less write a summary about the book {book.title} by {authors}.
+                In 60 words or less write a summary about the book {book.title} by {authors}.
                 Only respond with the summary.""",
             },
         ],
