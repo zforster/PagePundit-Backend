@@ -26,7 +26,7 @@ def get_recommendations_from_text(
             },
             {
                 "role": "user",
-                "content": f"""Recommend a maximum of 15 books for '{user_input}'. Respond with JSON data containing book name and author only. Example response: [{{"t": "title", "a": "author"}}]. Do not respond with anything but the example JSON format, no other words.""",
+                "content": f"""Recommend a maximum of 10 books for '{user_input}'. Respond with JSON data containing book name and author only. Example response: [{{"t": "title", "a": "author"}}]. Do not respond with anything but the example JSON format, no other words.""",
             },
         ],
     )
@@ -129,12 +129,7 @@ def get_reason(
 
 
 def get_latest_recommendation(recommendation_repo: DynamoRecommendationRepo) -> str:
-    latest_recommendation = recommendation_repo.get_latest_recommendation()
     return json.dumps(
-        {
-            "data": latest_recommendation.to_dict_by_alias()
-            if latest_recommendation
-            else None
-        },
+        recommendation_repo.get_latest_recommendation().to_dict_by_alias(),
         default=float,
     )
