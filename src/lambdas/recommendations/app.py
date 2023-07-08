@@ -1,10 +1,7 @@
 from typing import Optional
 
-from pydantic import parse_obj_as
-
 import lambdas.recommendations.service as service_layer
 from common.clients.parameter_store import get_google_books_api_key, get_open_ai_api_key
-from lambdas.recommendations.models.book import ExclusiveStartKey
 from lambdas.recommendations.repository.recommendation import DynamoRecommendationRepo
 from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
 from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
@@ -52,33 +49,6 @@ def get_recommendations_from_text(
     }
 
 
-def get_recommendations(
-    event: dict,
-    context: dict,
-) -> dict:
-    """
-    Fetch stored recommendations in batches of 10
-    """
-    timestamp = event["pathParameters"]["timestamp"]
-    recommendation_type = event["pathParameters"]["recommendation_type"]
-    if timestamp is None:
-        exclusive_start_key = None
-    else:
-        exclusive_start_key = parse_obj_as(
-            ExclusiveStartKey,
-            {"recommendation_type": recommendation_type, "timestamp": timestamp},
-        )
-
-    return {
-        "statusCode": 200,
-        "headers": get_response_headers(event=event),
-        "body": service_layer.read_recommendations(
-            recommendation_repo=DynamoRecommendationRepo(),
-            exclusive_start_key=exclusive_start_key,
-        ),
-    }
-
-
 def get_recommendation_by_id(event: dict, context: dict) -> dict:
     """
     Get recommendation by id
@@ -90,5 +60,51 @@ def get_recommendation_by_id(event: dict, context: dict) -> dict:
         "body": service_layer.get_recommendation_by_id(
             recommendation_id=recommendation_id,
             recommendation_repo=DynamoRecommendationRepo(),
+        ),
+    }
+
+
+def get_book_summary(
+    event: dict, context: dict, open_ai_wrapper: Optional[OpenAIWrapper] = None
+) -> dict:
+    """
+    Get book summary
+    """
+    if not open_ai_wrapper:
+        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+
+    recommendation_id = event["pathParameters"]["recommendation_id"]
+    index = event["pathParameters"]["index"]
+    return {
+        "statusCode": 200,
+        "headers": get_response_headers(event=event),
+        "body": service_layer.get_book_summary(
+            recommendation_id=recommendation_id,
+            recommendation_repo=DynamoRecommendationRepo(),
+            open_ai_wrapper=open_ai_wrapper,
+            index=int(index),
+        ),
+    }
+
+
+def get_reason(
+    event: dict, context: dict, open_ai_wrapper: Optional[OpenAIWrapper] = None
+) -> dict:
+    """
+    Get a reason someone would want to read the book based off their user input
+    """
+    if not open_ai_wrapper:
+        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+
+    recommendation_id = event["pathParameters"]["recommendation_id"]
+    index = event["pathParameters"]["index"]
+    return {
+        "statusCode": 200,
+        "headers": get_response_headers(event=event),
+        "body": service_layer.get_reason(
+            recommendation_id=recommendation_id,
+            recommendation_repo=DynamoRecommendationRepo(),
+            open_ai_wrapper=open_ai_wrapper,
+            index=int(index),
         ),
     }
