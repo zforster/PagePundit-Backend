@@ -48,6 +48,26 @@ Resources:
       Environment:
         Variables:
           RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
+  GetLatestRecommendation:
+    Type: AWS::Serverless::Function
+    Properties:
+      MemorySize: 512
+      Timeout: 30
+      CodeUri: src/
+      Description: Get latest stored recommendation
+      Handler: lambdas.recommendations.app.get_latest_recommendation
+      Runtime: python3.9
+      Events:
+        GetRecommendations:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyNextBookAPI
+            Path: /latest
+            Method: get
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
   GetRecommendationById:
     Type: AWS::Serverless::Function
     Properties:

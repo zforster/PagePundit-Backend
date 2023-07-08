@@ -126,3 +126,15 @@ def get_reason(
         ],
     )
     return json.dumps({"data": open_ai_response})
+
+
+def get_latest_recommendation(recommendation_repo: DynamoRecommendationRepo) -> str:
+    latest_recommendation = recommendation_repo.get_latest_recommendation()
+    return json.dumps(
+        {
+            "data": latest_recommendation.to_dict_by_alias()
+            if latest_recommendation
+            else None
+        },
+        default=float,
+    )

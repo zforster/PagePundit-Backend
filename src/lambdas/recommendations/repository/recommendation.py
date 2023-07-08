@@ -1,4 +1,5 @@
 from os import environ
+from typing import Optional
 
 import boto3
 from boto3.dynamodb.conditions import Key
@@ -35,3 +36,17 @@ class DynamoRecommendationRepo:
         )
 
         return response
+
+    def get_latest_recommendation(self) -> Optional[BookRecommendationResponse]:
+        results = self.table.query(
+            KeyConditionExpression=Key("recommendation_type").eq("search"),
+            ScanIndexForward=False,
+            Limit=1,
+        )
+        if "Items" in results and len(results["Items"]) > 0:
+            response = parse_obj_as(
+                BookRecommendationResponse,
+                results["Items"][0],
+            )
+            return response
+        return None
