@@ -1,7 +1,8 @@
 from typing import Optional
 
 import lambdas.recommendations.service as service_layer
-from common.clients.parameter_store import get_google_books_api_key, get_open_ai_api_key
+from common.clients.parameter_store import (get_google_books_api_key,
+                                            get_open_ai_api_key)
 from common.repository.recommendation import DynamoRecommendationRepo
 from common.wrappers.google_books_wrapper import GoogleBooksWrapper
 from common.wrappers.recommendation_wrapper import RecommendationAIWrapper

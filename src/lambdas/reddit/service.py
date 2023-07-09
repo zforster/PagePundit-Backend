@@ -1,43 +1,51 @@
-from common.wrappers.recommendation_wrapper import RecommendationAIWrapper
-from common.wrappers.reddit_wrapper import RedditWrapper
+import logging
 
-CLIENT_ID = "drb9MFYRHyf9Tv2IqekbUg"
-SECRET = "CaqwwEG8sAO7xKIqdSPJ-7kyoR8Jtw"
+from praw.reddit import Reddit
+
+import common.logic.recommendation as shared_logic
+from common.model.book import BookRecommendationResponse
+from common.repository.recommendation import DynamoRecommendationRepo
+from common.wrappers.google_books_wrapper import GoogleBooksWrapper
+from common.wrappers.recommendation_wrapper import RecommendationAIWrapper
+
+logging.basicConfig(level=logging.INFO)
+
+
+def convert_to_markdown_post(recommendation: BookRecommendationResponse) -> str:
+    post_content = [f'I am the PagePundit Bot. I use AI to provide recommendations based on your post. Here are {len(recommendation.books)} books I think will be of interest!']
+    for i, book in enumerate(recommendation.books):
+        book_link = f"[{book.title}](https://pagepundit.com/#/recommendation/{recommendation.recommendation_id}/{i})"
+        if book.authors:
+            book_link += f" - By {', '.join(book.authors)}"
+        post_content.append(book_link)
+    return "\n\n".join(post_content)
 
 
 def make_reddit_responses(
-    reddit_wrapper: RedditWrapper, recommendation_wrapper: RecommendationAIWrapper
-):
-    posts = reddit_wrapper.get_new_posts(subreddit="suggestmeabook")
-
-    # TODO (ZF) - Batch get posts so that we can identify which have already been replied to
-    posts = [post for post in posts]  # exhaust generator
-    post_ids = [post.id for post in posts]  # exhaust generator
-    print(post_ids)
+    reddit_wrapper: Reddit,
+    recommendation_wrapper: RecommendationAIWrapper,
+    recommendation_repo: DynamoRecommendationRepo,
+    google_books_wrapper: GoogleBooksWrapper,
+) -> None:
+    posts = reddit_wrapper.subreddit('recommendmeabook').new(limit=50)
 
     for post in posts:
+        has_already_replied = any(top_level_comment.author == 'PagePundit' and top_level_comment.body.startswith('I am the PagePundit Bot.') for top_level_comment in post.comments)
+        if has_already_replied:
+            logging.info(f'Skipping post {post.id} as already replied')
+            continue
+
         summarised_post = recommendation_wrapper.summarise_user_input(
             title=post.title, body=post.selftext
         )
-        print(summarised_post)
-        recommendations = recommendation_wrapper.get_book_recommendations_from_text(
-            user_input=summarised_post, recommendation_count=5
+        new_recommendations = shared_logic.get_and_store_recommendations_from_text(
+            user_input=summarised_post,
+            recommendation_repo=recommendation_repo,
+            google_books_wrapper=google_books_wrapper,
+            recommendation_wrapper=recommendation_wrapper,
+            recommendation_limit=6,
         )
-        print(recommendations)
-        print("---")
-
-
-if __name__ == "__main__":
-    reddit_wrapper = RedditWrapper(
-        client_id=CLIENT_ID,
-        client_secret=SECRET,
-        user_agent="PagePunditBot",
-        username="test",
-        password="user",
-    )
-    make_reddit_responses(
-        reddit_wrapper=reddit_wrapper,
-        recommendation_wrapper=RecommendationAIWrapper(
-            api_key="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"
-        ),
-    )
+        response = convert_to_markdown_post(recommendation=new_recommendations)
+        submission = reddit_wrapper.submission(id=post.id)
+        submission.reply(response)
+        logging.info(f'Posted new recommendations for post {post.id}')

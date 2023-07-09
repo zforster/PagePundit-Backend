@@ -67,7 +67,7 @@ class RecommendationAIWrapper:
             messages=[
                 {
                     "role": "system",
-                    "content": "You must summarise user input into a short sentance that can be passed into a system that uses natrual text to recommend books. Write in the perspective of the user, e.g 'I am looking for'",
+                    "content": "You must summarise user input into a short sentance that can be passed into a system that uses natrual text to recommend books. Write in first person from the perspective of the user, e.g 'I am looking for'",
                 },
                 {
                     "role": "user",
