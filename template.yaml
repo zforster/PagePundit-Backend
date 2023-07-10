@@ -124,6 +124,20 @@ Resources:
             RestApiId: !Ref MyNextBookAPI
             Path: /reason/{recommendation_id}/{index}
             Method: get
+  # LAMBDA REDDIT BOT
+  RunRedditRecommendationBot:
+    Type: AWS::Serverless::Function
+    Properties:
+      MemorySize: 512
+      Timeout: 600
+      CodeUri: src/
+      Description: Run reddit bot to comment replies on user posts
+      Handler: lambdas.reddit.app.post_reddit_recommendations
+      Runtime: python3.9
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          RECOMMENDATIONS_TABLE: !Ref RecommendationsTable
   # ROLES
   LambdaRole:
     Type: AWS::IAM::Role
@@ -154,6 +168,50 @@ Resources:
                   - ssm:GetParameter
                 Effect: Allow
                 Resource: arn:aws:ssm:eu-west-1:438998290379:parameter/google_books_key
+        - PolicyName: GetRedditBotUsername
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - ssm:GetParameter
+                Effect: Allow
+                Resource: arn:aws:ssm:eu-west-1:438998290379:parameter/reddit_bot_username
+        - PolicyName: GetRedditBotPassword
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - ssm:GetParameter
+                Effect: Allow
+                Resource: arn:aws:ssm:eu-west-1:438998290379:parameter/reddit_bot_password
+        - PolicyName: GetRedditBotClientId
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - ssm:GetParameter
+                Effect: Allow
+                Resource: arn:aws:ssm:eu-west-1:438998290379:parameter/reddit_bot_client_id
+        - PolicyName: GetRedditBotSecret
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - ssm:GetParameter
+                Effect: Allow
+                Resource: arn:aws:ssm:eu-west-1:438998290379:parameter/reddit_bot_secret
+        - PolicyName: RulePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - events:PutRule
+                Resource: arn:aws:events:*:*:*
+              - Effect: Allow
+                Action:
+                  - events:PutTargets
+                Resource: arn:aws:events:*:*:*
         - PolicyName: CloudWatchAccess
           PolicyDocument:
             Version: 2012-10-17
@@ -206,3 +264,21 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: !If [IsProduction, 15, 2]
             WriteCapacityUnits: !If [IsProduction, 15, 2]
+  # EVENT RULE
+  RunRedditBotSchedule:
+    Type: AWS::Events::Rule
+    Condition: IsProduction
+    Properties:
+      Description: Schedule to run the Reddit bot every 5 minutes
+      ScheduleExpression: rate(5 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt RunRedditRecommendationBot.Arn
+          Id: RunRedditBotTarget
+  InvokeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt RunRedditRecommendationBot.Arn
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt RunRedditBotSchedule.Arn

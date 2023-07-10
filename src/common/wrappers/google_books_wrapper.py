@@ -2,7 +2,7 @@ from typing import Optional, TypedDict
 
 import requests
 
-from lambdas.recommendations.models.book import Book
+from common.model.book import Book
 
 
 class BookRequest(TypedDict):

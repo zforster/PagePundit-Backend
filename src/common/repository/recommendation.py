@@ -5,7 +5,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from pydantic import parse_obj_as
 
-from lambdas.recommendations.models.book import BookRecommendationResponse
+from common.model.book import BookRecommendationResponse
 
 
 class DynamoRecommendationRepo:

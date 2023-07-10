@@ -1,10 +1,11 @@
 from typing import Optional
 
 import lambdas.recommendations.service as service_layer
-from common.clients.parameter_store import get_google_books_api_key, get_open_ai_api_key
-from lambdas.recommendations.repository.recommendation import DynamoRecommendationRepo
-from lambdas.recommendations.wrappers.google_books_wrapper import GoogleBooksWrapper
-from lambdas.recommendations.wrappers.open_ai_wrapper import OpenAIWrapper
+from common.clients.parameter_store import (get_google_books_api_key,
+                                            get_open_ai_api_key)
+from common.repository.recommendation import DynamoRecommendationRepo
+from common.wrappers.google_books_wrapper import GoogleBooksWrapper
+from common.wrappers.recommendation_wrapper import RecommendationAIWrapper
 
 ORIGINS = {"https://pagepundit.com", "http://localhost:3000"}
 
@@ -25,14 +26,14 @@ def get_response_headers(event: dict) -> dict:
 def get_recommendations_from_text(
     event: dict,
     context: dict,
-    open_ai_wrapper: Optional[OpenAIWrapper] = None,
+    recommendation_wrapper: Optional[RecommendationAIWrapper] = None,
     google_books_wrapper: Optional[GoogleBooksWrapper] = None,
 ) -> dict:
     """
     Recommend books based on text input
     """
-    if not open_ai_wrapper:
-        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+    if not recommendation_wrapper:
+        recommendation_wrapper = RecommendationAIWrapper(api_key=get_open_ai_api_key())
 
     if not google_books_wrapper:
         google_books_wrapper = GoogleBooksWrapper(api_key=get_google_books_api_key())
@@ -41,7 +42,7 @@ def get_recommendations_from_text(
         "statusCode": 200,
         "headers": get_response_headers(event=event),
         "body": service_layer.get_recommendations_from_text(
-            open_ai_wrapper=open_ai_wrapper,
+            recommendation_wrapper=recommendation_wrapper,
             google_books_wrapper=google_books_wrapper,
             recommendation_repo=DynamoRecommendationRepo(),
             user_input=event["body"],
@@ -65,13 +66,15 @@ def get_recommendation_by_id(event: dict, context: dict) -> dict:
 
 
 def get_book_summary(
-    event: dict, context: dict, open_ai_wrapper: Optional[OpenAIWrapper] = None
+    event: dict,
+    context: dict,
+    recommendation_wrapper: Optional[RecommendationAIWrapper] = None,
 ) -> dict:
     """
     Get book summary
     """
-    if not open_ai_wrapper:
-        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+    if not recommendation_wrapper:
+        recommendation_wrapper = RecommendationAIWrapper(api_key=get_open_ai_api_key())
 
     recommendation_id = event["pathParameters"]["recommendation_id"]
     index = event["pathParameters"]["index"]
@@ -81,20 +84,22 @@ def get_book_summary(
         "body": service_layer.get_book_summary(
             recommendation_id=recommendation_id,
             recommendation_repo=DynamoRecommendationRepo(),
-            open_ai_wrapper=open_ai_wrapper,
+            recommendation_wrapper=recommendation_wrapper,
             index=int(index),
         ),
     }
 
 
 def get_reason(
-    event: dict, context: dict, open_ai_wrapper: Optional[OpenAIWrapper] = None
+    event: dict,
+    context: dict,
+    recommendation_wrapper: Optional[RecommendationAIWrapper] = None,
 ) -> dict:
     """
     Get a reason someone would want to read the book based off their user input
     """
-    if not open_ai_wrapper:
-        open_ai_wrapper = OpenAIWrapper(api_key=get_open_ai_api_key())
+    if not recommendation_wrapper:
+        recommendation_wrapper = RecommendationAIWrapper(api_key=get_open_ai_api_key())
 
     recommendation_id = event["pathParameters"]["recommendation_id"]
     index = event["pathParameters"]["index"]
@@ -104,7 +109,7 @@ def get_reason(
         "body": service_layer.get_reason(
             recommendation_id=recommendation_id,
             recommendation_repo=DynamoRecommendationRepo(),
-            open_ai_wrapper=open_ai_wrapper,
+            recommendation_wrapper=recommendation_wrapper,
             index=int(index),
         ),
     }
