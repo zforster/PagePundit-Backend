@@ -12,7 +12,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 def convert_to_markdown_post(recommendation: BookRecommendationResponse) -> str:
-    post_content = [f'I am the PagePundit Bot. I use AI to provide recommendations based on your post. Here are {len(recommendation.books)} books I think will be of interest!']
+    post_content = [
+        'I am the PagePundit Bot. I use AI to provide recommendations based on your post.',
+        f'Here are {len(recommendation.books)} books I think will be of interest!'
+    ]
     for i, book in enumerate(recommendation.books):
         book_link = f"[{book.title}](https://pagepundit.com/#/recommendation/{recommendation.recommendation_id}/{i})"
         if book.authors:
