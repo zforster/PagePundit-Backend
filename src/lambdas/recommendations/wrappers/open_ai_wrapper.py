@@ -5,7 +5,7 @@ import openai
 
 
 class Models(str, Enum):
-    GTP_TURBO = "gpt-3.5-turbo"
+    GPT_4O_MINI = "gpt-4o-mini"
     DAVINCI = "text-davinci-003"
 
 
@@ -18,17 +18,6 @@ class OpenAIWrapper:
     def __init__(self, api_key: str):
         self.api_key = api_key
 
-    def query(self, user_input: str, temperature: Optional[float] = 0.7) -> str:
-        openai.api_key = self.api_key
-        completions = openai.Completion.create(
-            model=Models.DAVINCI,
-            temperature=temperature,
-            prompt=user_input,
-            max_tokens=1000,
-            n=1,
-        )
-        return completions["choices"][0]["text"]
-
     def chat(
         self,
         messages: list[Message],
@@ -36,6 +25,6 @@ class OpenAIWrapper:
     ) -> str:
         openai.api_key = self.api_key
         completions = openai.ChatCompletion.create(
-            model=Models.GTP_TURBO, temperature=temperature, messages=messages
+            model=Models.GPT_4O_MINI, temperature=temperature, messages=messages
         )
         return completions.choices[0]["message"]["content"]
